@@ -5,7 +5,9 @@ import type { PipelineStage } from 'mongoose';
  * Base aggregation pipeline for fetching books with populated relationships
  * @param matchCriteria - The criteria to match books (e.g., { author: ObjectId } or { genres: ObjectId })
  */
-const getBooksPipeline = (matchCriteria: Record<string, any>): PipelineStage[] => {
+const getBooksPipeline = (
+  matchCriteria: Record<string, any>,
+): PipelineStage[] => {
   return [
     { $match: matchCriteria },
     {
@@ -48,7 +50,6 @@ const getBooksPipeline = (matchCriteria: Record<string, any>): PipelineStage[] =
         updatedAt: 1,
       },
     },
-    { $sort: { createdAt: -1 } },
   ];
 };
 
@@ -63,6 +64,7 @@ export const getBooksByGenrePipeline = (genreId: string): PipelineStage[] => {
 
 /**
  * Get a single book by ID with author name, genres, and total books count for author and genres
+ * Optimized: Uses $count instead of loading all documents
  */
 export const getBookByIdPipeline = (bookId: string): PipelineStage[] => {
   return [
@@ -88,9 +90,18 @@ export const getBookByIdPipeline = (bookId: string): PipelineStage[] => {
     {
       $lookup: {
         from: 'books',
-        localField: 'author',
-        foreignField: 'author',
-        as: 'authorBooks',
+        let: { authorId: '$author' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$author', '$$authorId'] },
+            },
+          },
+          {
+            $count: 'count',
+          },
+        ],
+        as: 'authorBooksCount',
       },
     },
     {
@@ -113,8 +124,11 @@ export const getBookByIdPipeline = (bookId: string): PipelineStage[] => {
                     $expr: { $in: ['$$genreId', '$genres'] },
                   },
                 },
+                {
+                  $count: 'count',
+                },
               ],
-              as: 'booksInGenre',
+              as: 'booksCount',
             },
           },
           {
@@ -122,7 +136,9 @@ export const getBookByIdPipeline = (bookId: string): PipelineStage[] => {
               _id: 1,
               name: 1,
               description: 1,
-              totalBooks: { $size: '$booksInGenre' },
+              totalBooks: {
+                $ifNull: [{ $arrayElemAt: ['$booksCount.count', 0] }, 0],
+              },
             },
           },
         ],
@@ -142,7 +158,9 @@ export const getBookByIdPipeline = (bookId: string): PipelineStage[] => {
           name: '$authorDetails.name',
           bio: '$authorDetails.bio',
           nationality: '$authorDetails.nationality',
-          totalBooks: { $size: '$authorBooks' },
+          totalBooks: {
+            $ifNull: [{ $arrayElemAt: ['$authorBooksCount.count', 0] }, 0],
+          },
         },
         genres: '$genreDetails',
         createdAt: 1,
