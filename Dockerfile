@@ -1,23 +1,23 @@
-# Stage 1: Install all dependencies
-FROM node:20.16-alpine3.19 AS dependencies
+# Base stage: Setup pnpm with corepack
+FROM node:24.15.0-alpine AS base
+
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
 
-RUN npm install -g pnpm@10.33.0
+# Stage 1: Install all dependencies
+FROM base AS dependencies
+
+COPY package.json pnpm-lock.yaml ./
 
 RUN pnpm install --frozen-lockfile
 
 
 # Stage 2: Build TypeScript application
-FROM node:20.16-alpine3.19 AS build
-
-WORKDIR /app
+FROM base AS build
 
 COPY package.json pnpm-lock.yaml tsconfig.json ./
-
-RUN npm install -g pnpm@10.33.0
 
 COPY --from=dependencies /app/node_modules ./node_modules
 
@@ -26,19 +26,16 @@ COPY src ./src
 RUN pnpm run build
 
 
-FROM node:20.16-alpine3.19 AS prod-dependencies
-
-WORKDIR /app
+# Stage 3: Production dependencies
+FROM base AS prod-dependencies
 
 COPY package.json pnpm-lock.yaml ./
-
-RUN npm install -g pnpm@10.33.0
 
 RUN pnpm install --frozen-lockfile --prod
 
 
 # Stage 4: Final production image
-FROM node:20.16-alpine3.19 AS production
+FROM node:24.15.0-alpine AS production
 
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
