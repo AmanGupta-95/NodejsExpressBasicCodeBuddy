@@ -1,6 +1,7 @@
 import express from 'express';
 import config from './config/config.js';
 import { connectDatabase } from './config/database.js';
+import routes from './routes/routes.js';
 
 const app = express();
 
@@ -23,6 +24,9 @@ app.post('/hello', (req, res) => {
   }
   res.send(`Hello, ${username}!`);
 });
+
+// API Routes
+app.use('/api', routes);
 
 // Connect to database and start server
 const startServer = async () => {
