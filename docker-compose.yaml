@@ -15,8 +15,11 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=${PORT:-7777}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/${MONGO_DB_NAME:-libraryApp}}
     env_file:
       - .env
+    depends_on:
+      - mongodb
     networks:
       - app-network
 
@@ -27,9 +30,9 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-adminpassword}
-      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME:-nodejs-express-db}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-appuser}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-app123}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME:-libraryApp}
     volumes:
       - mongodb-data:/data/db
       - mongodb-config:/data/configdb
