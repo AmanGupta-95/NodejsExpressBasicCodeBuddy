@@ -60,5 +60,9 @@ USER nodejs
 
 EXPOSE 7777
 
+# Environment variables (defaults)
+ENV NODE_ENV=production \
+    PORT=7777
+
 CMD ["node", "dist/server.js"]
 
