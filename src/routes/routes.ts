@@ -5,6 +5,7 @@ import {
   createBook,
   getBooksByAuthor,
   getBooksByGenre,
+  getBookById,
 } from '../controllers/bookController.js';
 import { createGenre } from '../controllers/genreController.js';
 
@@ -15,6 +16,7 @@ router.post('/author', createAuthor);
 
 // Book routes
 router.post('/book', createBook);
+router.get('/book/:bookId', getBookById);
 router.get('/books/author/:authorId', getBooksByAuthor);
 router.get('/books/genre/:genreId', getBooksByGenre);
 

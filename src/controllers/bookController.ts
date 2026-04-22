@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import {
   getBooksByAuthorPipeline,
   getBooksByGenrePipeline,
+  getBookByIdPipeline,
 } from '../aggregations/bookAggregations.js';
 
 export const createBook = async (
@@ -126,6 +127,43 @@ export const getBooksByGenre = async (
   } catch (error: any) {
     res.status(500).json({
       error: 'Failed to retrieve books by genre',
+      message: error.message,
+    });
+  }
+};
+
+export const getBookById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { bookId } = req.params;
+
+    if (!bookId || typeof bookId !== 'string') {
+      res.status(400).json({ error: 'Book ID is required' });
+      return;
+    }
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(bookId)) {
+      res.status(400).json({ error: 'Invalid book ID' });
+      return;
+    }
+
+    const books = await Book.aggregate(getBookByIdPipeline(bookId));
+
+    if (books.length === 0) {
+      res.status(404).json({ error: 'Book not found' });
+      return;
+    }
+
+    res.status(200).json({
+      message: 'Book retrieved successfully',
+      data: books[0],
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: 'Failed to retrieve book',
       message: error.message,
     });
   }
