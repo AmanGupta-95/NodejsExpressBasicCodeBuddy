@@ -15,7 +15,7 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=${PORT:-7777}
-      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/${MONGO_DB_NAME:-libraryApp}}
+      - MONGODB_URI=${MONGODB_URI_DOCKER:-mongodb://mongodb:27017/${MONGO_DB_NAME:-libraryApp}}
     env_file:
       - .env
     depends_on:
