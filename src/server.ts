@@ -11,9 +11,6 @@ app.get('/hello', (_, res) => {
 
 app.get('/hello/:username', (req, res) => {
   const { username } = req.params;
-  if (!username) {
-    return res.status(400).send('Username is required');
-  }
   res.send(`Hello, ${username}!`);
 });
 
