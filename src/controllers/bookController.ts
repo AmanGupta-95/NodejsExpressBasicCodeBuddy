@@ -137,12 +137,7 @@ export const getBookById = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { bookId } = req.params;
-
-    if (!bookId || typeof bookId !== 'string') {
-      res.status(400).json({ error: 'Book ID is required' });
-      return;
-    }
+    const { bookId } = req.params as { bookId: string };
 
     // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(bookId)) {
@@ -164,6 +159,38 @@ export const getBookById = async (
   } catch (error: any) {
     res.status(500).json({
       error: 'Failed to retrieve book',
+      message: error.message,
+    });
+  }
+};
+
+export const deleteBook = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { bookId } = req.params as { bookId: string };
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(bookId)) {
+      res.status(400).json({ error: 'Invalid book ID' });
+      return;
+    }
+
+    const deletedBook = await Book.findByIdAndDelete(bookId);
+
+    if (!deletedBook) {
+      res.status(404).json({ error: 'Book not found' });
+      return;
+    }
+
+    res.status(200).json({
+      message: 'Book deleted successfully',
+      data: deletedBook,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: 'Failed to delete book',
       message: error.message,
     });
   }
