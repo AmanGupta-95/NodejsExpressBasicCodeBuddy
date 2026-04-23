@@ -6,6 +6,7 @@ import {
   getBooksByAuthor,
   getBooksByGenre,
   getBookById,
+  deleteBook,
 } from '../controllers/bookController.js';
 import { createGenre } from '../controllers/genreController.js';
 
@@ -19,6 +20,7 @@ router.post('/book', createBook);
 router.get('/book/:bookId', getBookById);
 router.get('/books/author/:authorId', getBooksByAuthor);
 router.get('/books/genre/:genreId', getBooksByGenre);
+router.delete('/books/:id', deleteBook);
 
 // Genre routes
 router.post('/genre', createGenre);
