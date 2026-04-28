@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "dev": "nodemon --watch src --ext ts --exec node --loader ts-node/esm src/server.ts",
     "clean": "if exist dist rmdir /s /q dist",
-    "build:clean": "pnpm clean && pnpm build"
+    "build:clean": "pnpm clean && pnpm build",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -22,8 +23,12 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
+    "jest": "^30.3.0",
     "nodemon": "^3.1.14",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   }
