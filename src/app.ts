@@ -3,11 +3,16 @@ import routes from './routes/routes.js';
 
 const app: Application = express();
 
+app.enable('strict routing');
 app.use(express.json());
 
 // Basic Nodejs and Express server with TypeScript Task
 app.get('/hello', (_, res) => {
   res.send('Hello, World!');
+});
+
+app.get('/hello/', (_, res) => {
+  return res.status(400).send('Username is required');
 });
 
 app.get('/hello/:username', (req, res) => {
